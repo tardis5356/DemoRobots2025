@@ -1,4 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-public class Test {
+import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.button.Trigger;
+
+public class Test extends CommandOpMode {
+    @Override
+    public void initialize() {
+
+    }
 }
