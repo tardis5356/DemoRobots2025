@@ -39,6 +39,15 @@ public class Optimus_Teleop extends CommandOpMode {
         new Trigger(()-> driver2.getButton(GamepadKeys.Button.RIGHT_BUMPER) || driver2.getButton(GamepadKeys.Button.LEFT_BUMPER))
                 .toggleWhenActive(gripper::open,gripper::close);
 
+        new Trigger(()-> driver2.getButton(GamepadKeys.Button.DPAD_UP))
+                .whenActive(gripper::up);
+
+        new Trigger(()-> driver2.getButton(GamepadKeys.Button.DPAD_LEFT))
+                .whenActive(gripper::middle);
+
+        new Trigger(()-> driver2.getButton(GamepadKeys.Button.DPAD_DOWN))
+                .whenActive(gripper::down);
+
     }
 
     @Override

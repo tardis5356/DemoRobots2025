@@ -35,6 +35,19 @@ public class Gripper extends SubsystemBase {
 
     }
 
+    public void up(){
 
+        sW.setPosition(OptimusBotPositions.GRIPPER_UP);
 
+    }
+    public void down(){
+
+        sW.setPosition(OptimusBotPositions.GRIPPER_DOWN);
+
+    }
+    public void middle(){
+
+        sW.setPosition(OptimusBotPositions.GRIPPER_MIDDLE);
+
+    }
 }
