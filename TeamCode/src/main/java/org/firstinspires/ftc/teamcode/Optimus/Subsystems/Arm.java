@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Optimus.Subsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,18 +12,14 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class Arm extends SubsystemBase {
 
-    private DcMotor mA;
+    public DcMotor mA;
 
-    private TouchSensor armLimit;
+    public TouchSensor armLimit;
 
-    private Gamepad driver2;
-
-    private double armPosition,positionDiff;
+    public double armPosition, positionDiff;
 
     public Arm(HardwareMap hardwareMap){
 
-        mA = hardwareMap.get(DcMotor.class,"mA");
-        armLimit = hardwareMap.get(TouchSensor.class,"armLimit");
 
 
     }
@@ -29,24 +27,21 @@ public class Arm extends SubsystemBase {
     @Override
 
     public void periodic(){
-        if(armLimit.isPressed()){armPosition = 3750;
+        if (armLimit.isPressed()){armPosition = 3750;
             positionDiff = armPosition - mA.getCurrentPosition();
-
         }
 
-        if(armPosition>=3750 && driver2.left_stick_y>0){mA.setPower(0);
+        //if (armPosition>=3750 && driver2.left_stick_y<0) {mA.setPower(0);
 
-        } else if (armPosition<=0 && driver2.left_stick_y<0) {mA.setPower(0);
+       // } else if (armPosition<0 && driver2.left_stick_y>0) {mA.setPower(0);
 
-        }else{ mA.setPower(driver2.left_stick_y);
+        //} else {mA.setPower(driver2.left_stick_y);
 
-        }
-
+       // }
+        //telemetry.addData("armPower", mA.getPower());
+       // telemetry.update();
 
     }
-
-
-
 
 }
 

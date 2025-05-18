@@ -1,57 +1,97 @@
 package org.firstinspires.ftc.teamcode.Optimus;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+import static org.firstinspires.ftc.teamcode.Optimus.Subsystems.OptimusBotPositions.ARM_INDEX_POSITION;
+import static org.firstinspires.ftc.teamcode.Optimus.Subsystems.OptimusBotPositions.ARM_LOWER_LIMIT;
+import static org.firstinspires.ftc.teamcode.Optimus.Subsystems.OptimusBotPositions.ARM_UPPER_LIMIT;
+import static org.firstinspires.ftc.teamcode.Optimus.Subsystems.OptimusBotPositions.WRIST_RESET_POSITION;
+
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import org.firstinspires.ftc.teamcode.Optimus.Subsystems.Arm;
 import org.firstinspires.ftc.teamcode.Optimus.Subsystems.Gripper;
+import org.firstinspires.ftc.teamcode.Optimus.Subsystems.OptimusBotPositions;
 
-@TeleOp (name = "Optimus_Teleop")
+@TeleOp(name = "Optimus_Teleop")
 
 public class Optimus_Teleop extends CommandOpMode {
     //declaration of parts
-    DcMotor mR, mL;
+    DcMotor mR, mL, mA;
+
+    Servo sW;
+
+    TouchSensor armLimit;
 
     GamepadEx driver1, driver2;
 
     Gripper gripper;
 
-    public double ForwardBackward, Rotation;
+    Arm arm;
+
+    public double ForwardBackward, Rotation, armPosition, positionDiff;
+
+    public boolean wristDown;
 
     @Override
-    public void initialize(){
+    public void initialize() {
         //hardware map
-        mR = hardwareMap.get(DcMotor.class,"mR");
-        mL = hardwareMap.get(DcMotor.class,"mL");
+        mR = hardwareMap.get(DcMotor.class, "mR");
+        mL = hardwareMap.get(DcMotor.class, "mL");
 
         mL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         gripper = new Gripper(hardwareMap);
 
+        mA = hardwareMap.get(DcMotor.class, "mA");
+        armLimit = hardwareMap.get(TouchSensor.class, "armLimit");
+
+        sW = hardwareMap.get(Servo.class, "sW");
+
         driver1 = new GamepadEx(gamepad1);
         driver2 = new GamepadEx(gamepad2);
 
         //triggers
-        new Trigger(()-> driver2.getButton(GamepadKeys.Button.RIGHT_BUMPER) || driver2.getButton(GamepadKeys.Button.LEFT_BUMPER))
-                .toggleWhenActive(gripper::open,gripper::close);
+        new Trigger(() -> driver2.getButton(GamepadKeys.Button.RIGHT_BUMPER) || driver2.getButton(GamepadKeys.Button.LEFT_BUMPER))
+                .toggleWhenActive(gripper::open, gripper::close);
 
-        new Trigger(()-> driver2.getButton(GamepadKeys.Button.DPAD_UP))
-                .whenActive(gripper::up);
+        new Trigger(() -> driver2.getButton(GamepadKeys.Button.DPAD_UP))
+                .whenActive(
+                        new ParallelCommandGroup(
+                                new InstantCommand(gripper::up),
+                                new InstantCommand(() -> wristDown = false)
+                        )
+                );
 
-        new Trigger(()-> driver2.getButton(GamepadKeys.Button.DPAD_LEFT))
-                .whenActive(gripper::middle);
+        new Trigger(() -> driver2.getButton(GamepadKeys.Button.DPAD_LEFT) || driver2.getButton(GamepadKeys.Button.DPAD_RIGHT))
+                .whenActive(
+                        new ParallelCommandGroup(
+                                new InstantCommand(gripper::middle),
+                                new InstantCommand(() -> wristDown = false)
+                        )
+                );
 
-        new Trigger(()-> driver2.getButton(GamepadKeys.Button.DPAD_DOWN))
-                .whenActive(gripper::down);
+        new Trigger(() -> driver2.getButton(GamepadKeys.Button.DPAD_DOWN))
+                .whenActive(
+                        new ParallelCommandGroup(
+                                new InstantCommand(gripper::down),
+                                new InstantCommand(() -> wristDown = true)
+                        )
+                );
 
     }
 
     @Override
-    public void run(){
+    public void run() {
         //teleop specific logic
         super.run();
 
@@ -61,6 +101,32 @@ public class Optimus_Teleop extends CommandOpMode {
         mR.setPower(ForwardBackward - Rotation);
         mL.setPower(ForwardBackward + Rotation);
 
+        if (armLimit.isPressed()) {
+            armPosition = ARM_INDEX_POSITION;
+            positionDiff = mA.getCurrentPosition() - armPosition;
+        }
+
+        armPosition = mA.getCurrentPosition() - positionDiff;
+
+        if (armPosition > ARM_LOWER_LIMIT && driver2.getLeftY() > 0) {
+            mA.setPower(0);
+
+        } else if (armPosition < ARM_UPPER_LIMIT && driver2.getLeftY() < 0) {
+            mA.setPower(0);
+
+        } else {
+            mA.setPower(driver2.getLeftY());
+
+        }
+
+        if (armPosition > WRIST_RESET_POSITION && wristDown) {
+
+            sW.setPosition(OptimusBotPositions.GRIPPER_MIDDLE);
+
+        }
+
+        telemetry.addData("armPower", mA.getPower());
+        telemetry.addData("armPosition", armPosition);
         telemetry.addData("FB", ForwardBackward);
         telemetry.addData("Rotation", Rotation);
         telemetry.addData("mR_Power", mR.getPower());
@@ -70,12 +136,11 @@ public class Optimus_Teleop extends CommandOpMode {
         telemetry.update();
     }
 
-    private double antiDrift(double stickVal){
+    private double antiDrift(double stickVal) {
 
-        if(stickVal < -.02 || stickVal > .02){
+        if (stickVal < -.02 || stickVal > .02) {
             return stickVal;
-        }
-        else{
+        } else {
             return 0;
         }
     }
