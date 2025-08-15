@@ -30,6 +30,8 @@ public class Optimus_Teleop extends CommandOpMode {
 
     Servo sW;
 
+    Boolean tooFar;
+
     TouchSensor armLimit;
 
     GamepadEx driver1, driver2;
@@ -104,19 +106,23 @@ public class Optimus_Teleop extends CommandOpMode {
         if (armLimit.isPressed()) {
             armPosition = ARM_INDEX_POSITION;
             positionDiff = mA.getCurrentPosition() - armPosition;
+//            if (driver2.getLeftY()<0){
+//                mA.setPower(0);
+//            }
         }
 
         armPosition = mA.getCurrentPosition() - positionDiff;
 
         if (armPosition > ARM_LOWER_LIMIT && driver2.getLeftY() > 0) {
             mA.setPower(0);
+            tooFar = true;
 
         } else if (armPosition < ARM_UPPER_LIMIT && driver2.getLeftY() < 0) {
             mA.setPower(0);
 
         } else {
             mA.setPower(driver2.getLeftY());
-
+            tooFar = false;
         }
 
         if (armPosition > WRIST_RESET_POSITION && wristDown) {
@@ -133,6 +139,7 @@ public class Optimus_Teleop extends CommandOpMode {
         telemetry.addData("mL_Power", mL.getPower());
         telemetry.addData("LeftStickY", driver1.getLeftY());
         telemetry.addData("RightStickX", driver1.getRightX());
+        telemetry.addData("TooFarForward", tooFar);
         telemetry.update();
     }
 
