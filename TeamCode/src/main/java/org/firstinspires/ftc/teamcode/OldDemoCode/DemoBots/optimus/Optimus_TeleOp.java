@@ -120,7 +120,7 @@ public class Optimus_TeleOp extends LinearOpMode{
 //            }
 
             if(GripperState){
-                sG.setPosition(.3);
+                sG.setPosition(.4);
             }
             else if(GripperState == false){
                 sG.setPosition(.6);
@@ -211,6 +211,8 @@ public class Optimus_TeleOp extends LinearOpMode{
             telemetry.addData("limit", limit.isPressed());
             telemetry.addData("ArmPosition", ArmPosition);
             telemetry.addData("TrueArmPosition", mA.getCurrentPosition());
+            telemetry.addLine();
+            telemetry.addData("WASSAAAAAA",true);
             telemetry.update();
 
 
