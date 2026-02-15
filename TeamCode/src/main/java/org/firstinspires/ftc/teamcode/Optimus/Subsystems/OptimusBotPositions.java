@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Optimus.Subsystems;
 
 public class OptimusBotPositions {
 
-    public static double GRIPPER_OPEN = .46, GRIPPER_CLOSE = .24;
+    public static double GRIPPER_OPEN = .43, GRIPPER_CLOSE = .36;
 
     public static double GRIPPER_DOWN = .3, GRIPPER_MIDDLE = .42, GRIPPER_UP = .7;
 
