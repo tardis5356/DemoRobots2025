@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp (name = "Wall-E_Tele")
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+@TeleOp (name = "Wall-E-TeleOP")
 public class WallETeleOp extends LinearOpMode {
 
     DcMotor mL, mR;
@@ -26,6 +28,9 @@ public class WallETeleOp extends LinearOpMode {
         while(opModeIsActive())   {
             mL.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
             mR.setPower(gamepad1.left_stick_y + gamepad1.right_stick_x);
+
+            telemetry.addData("WOah",true);
+            telemetry.update();
         }
     }
 }
