@@ -39,7 +39,7 @@ public class DecodeOptimusTeleop extends CommandOpMode {
 
     Arm arm;
 
-    public static double GRIPPER_OPEN = 0.9, GRIPPER_CLOSE = .6;
+    public static double GRIPPER_OPEN = 1.0, GRIPPER_CLOSE = .6;
 
     public static double GRIPPER_DOWN = .3, GRIPPER_MIDDLE = .42, GRIPPER_UP = .7;
 
