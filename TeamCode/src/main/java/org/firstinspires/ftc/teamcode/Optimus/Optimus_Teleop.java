@@ -141,6 +141,8 @@ public class Optimus_Teleop extends CommandOpMode {
         telemetry.addData("RightStickX", driver1.getRightX());
         telemetry.addData("TooFarForward", tooFar);
         telemetry.update();
+        //telemetry is my favorite
+
     }
 
     private double antiDrift(double stickVal) {
@@ -152,3 +154,4 @@ public class Optimus_Teleop extends CommandOpMode {
         }
     }
 }
+
