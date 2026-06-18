@@ -20,8 +20,6 @@ public class Arm extends SubsystemBase {
 
     public Arm(HardwareMap hardwareMap){
 
-
-
     }
 
     @Override
